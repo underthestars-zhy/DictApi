@@ -1,6 +1,77 @@
-public struct DictApi {
-    public private(set) var text = "Hello, World!"
+import Sentry
+import SwiftSoup
+import Foundation
 
-    public init() {
+@available(iOS 15.0.0, *)
+@available(macOS 12.0.0, *)
+@available(watchOS 8.0.0, *)
+@available(tvOS 15.0.0, *)
+public struct DictApi {
+    public static let shared = DictApi()
+    
+    public func getCollinsData(with word: String, from: Language, to: Language) async -> CollinsData? {
+        switch (from, to) {
+        case (.en, .cn): return await getCollinsDataFromEnToCn(word)
+        default: return nil
+        }
     }
+    
+    private func getCollinsDataFromEnToCn(_ word: String) async -> CollinsData? {
+        guard let url = URL(string: "https://www.collinsdictionary.com/dictionary/english-chinese/\(word.lowercased())") else {
+            return nil
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+
+            let doc: Document = try SwiftSoup.parse(html)
+            
+            guard let soundUrlString = try doc.body()?
+                    .getElementsByTag("main")
+                    .first()?
+                    .getElementById("main_content")?
+                    .getElementsByClass("res_cell_center")
+                    .first()?
+                    .getElementsByClass("dc res_cell_center_content")
+                    .first()?
+                    .getElementsByClass("he")
+                    .first()?
+                    .getElementsByClass("cB cB-t")
+                    .first()?
+                    .getElementsByClass("cB-h")
+                    .first()?
+                    .getAllElements()
+                    .get(2)
+                    .select("a")
+                    .attr("data-src-mp3"), let sound_url = URL(string: soundUrlString) else { return nil }
+            
+            return nil
+        } catch {
+            SentrySDK.capture(error: error)
+            return nil
+        }
+    }
+}
+
+public enum DictType: String {
+    case collins
+    
+    public func fromLanguage() -> [Language] {
+        switch self {
+        case .collins: return [.en]
+        }
+    }
+    
+    public func toLanguage() -> [Language] {
+        switch self {
+        case .collins: return [.cn]
+        }
+    }
+}
+
+public enum Language: String {
+    case cn = "Chinese"
+    case en = "English"
 }
