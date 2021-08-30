@@ -45,7 +45,31 @@ public struct DictApi {
                     .getAllElements()
                     .get(2)
                     .select("a")
-                    .attr("data-src-mp3"), let sound_url = URL(string: soundUrlString) else { return nil }
+                    .attr("data-src-mp3"),
+                let sound_url = URL(string: soundUrlString) else { return nil }
+            
+            guard let allExplain = try doc.body()?
+                    .getElementsByTag("main")
+                    .first()?
+                    .getElementById("main_content")?
+                    .getElementsByClass("res_cell_center")
+                    .first()?
+                    .getElementsByClass("dc res_cell_center_content")
+                    .first()?
+                    .getElementsByClass("he")
+                    .first()?
+                    .getElementsByClass("cB cB-t")
+                    .first()?
+                    .getElementsByClass("hom").array() else { return nil }
+            
+            var psArray = [String]()
+            
+            for ele in allExplain {
+                guard let text = try ele.getElementsByClass("gramGrp h3_entry").first()?.text() else { return nil }
+                psArray.append(text.uppercased())
+            }
+            
+            print(psArray)
             
             return nil
         } catch {
