@@ -54,15 +54,46 @@ public struct DictApi {
                     .getElementsByClass("hom").array() else { return nil }
             
             var psArray = [String]()
+            var explainArray = [[String]]()
+            var exampleSentencesArray = [[[String]]]()
             
             for ele in allExplain {
                 guard let text = try ele.getElementsByClass("gramGrp h3_entry").first()?.text() else { return nil }
                 psArray.append(text.uppercased())
+                
+                var explains = [String]()
+                var examples = [[String]]()
+                
+                for li in try ele.getElementsByTag("ol").first()?.getElementsByTag("li").array() ?? [] {
+                    var text = ""
+                    var example = [String]()
+                    if li.hasClass("level_1") {
+                        for child in li.children().array() {
+                            if !child.hasClass("p phrase") {
+                                text += try child.text()
+                            } else {
+                                example.append(try child.text())
+                            }
+                        }
+                    }
+                    
+                    if !text.isEmpty {
+                        explains.append(text)
+                        examples.append(example)
+                    }
+                }
+                
+                explainArray.append(explains)
+                exampleSentencesArray.append(examples)
             }
             
-            print(psArray)
+            var paraphrase = [CollinsParaphrase]()
             
-            return nil
+            for (ps, (explains, examples)) in zip(psArray, zip(explainArray, exampleSentencesArray)) {
+                paraphrase.append(CollinsParaphrase(sound: sound_url, ps: ps, explain: explains, exampleSentence: examples))
+            }
+            
+            return CollinsData(word: word, paraphrase: paraphrase)
         } catch {
             SentrySDK.capture(error: error)
             return nil

@@ -7,6 +7,7 @@ final class DictApiTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        await DictApi.shared.getCollinsData(with: "swift", from: .en, to: .cn)
+        let res = await DictApi.shared.getCollinsData(with: "swift", from: .en, to: .cn)
+        print(res ?? "")
     }
 }
