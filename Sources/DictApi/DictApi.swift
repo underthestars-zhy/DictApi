@@ -9,14 +9,20 @@ import Foundation
 public struct DictApi {
     public static let shared = DictApi()
     
-    public func getCollinsData(with word: String, from: Language, to: Language) async -> CollinsData? {
+    public func getData(with type: DictType, for word: String, from: Language, to: Language) async -> DictDataModel? {
+        switch type {
+        case .collins: return await getCollinsData(for: word, from: from, to: to)
+        }
+    }
+    
+    private func getCollinsData(for word: String, from: Language, to: Language) async -> DictDataModel? {
         switch (from, to) {
         case (.en, .cn): return await getCollinsDataFromEnToCn(word)
         default: return nil
         }
     }
     
-    private func getCollinsDataFromEnToCn(_ word: String) async -> CollinsData? {
+    private func getCollinsDataFromEnToCn(_ word: String) async -> DictDataModel? {
         guard let url = URL(string: "https://www.collinsdictionary.com/dictionary/english-chinese/\(word.lowercased())") else {
             return nil
         }
@@ -87,13 +93,13 @@ public struct DictApi {
                 exampleSentencesArray.append(examples)
             }
             
-            var paraphrase = [CollinsParaphrase]()
+            var paraphrase = [Paraphrase]()
             
             for (ps, (explains, examples)) in zip(psArray, zip(explainArray, exampleSentencesArray)) {
-                paraphrase.append(CollinsParaphrase(sound: sound_url, ps: ps, explain: explains, exampleSentence: examples))
+                paraphrase.append(Paraphrase(sound: sound_url, ps: ps, explain: explains, exampleSentence: examples))
             }
             
-            return CollinsData(word: word, paraphrase: paraphrase)
+            return DictDataModel(word: word, paraphrase: paraphrase)
         } catch {
             SentrySDK.capture(error: error)
             return nil
