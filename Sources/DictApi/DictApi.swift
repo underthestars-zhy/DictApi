@@ -96,10 +96,10 @@ public struct DictApi {
             var paraphrase = [Paraphrase]()
             
             for (ps, (explains, examples)) in zip(psArray, zip(explainArray, exampleSentencesArray)) {
-                paraphrase.append(Paraphrase(sound: sound_url, ps: ps, explain: explains, exampleSentence: examples))
+                paraphrase.append(Paraphrase(ps: ps, explain: explains, exampleSentence: examples))
             }
             
-            return DictDataModel(word: word, paraphrase: paraphrase)
+            return DictDataModel(sound: sound_url, word: word, paraphrase: paraphrase)
         } catch {
             SentrySDK.capture(error: error)
             return nil
