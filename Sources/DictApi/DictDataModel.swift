@@ -7,6 +7,7 @@
 
 import Foundation
 
+@dynamicMemberLookup
 protocol WriteAndReadAble {
     var hashTable: [String : String] { get set }
     
@@ -22,7 +23,17 @@ extension WriteAndReadAble {
     public func `get`(_ name: String) -> String? {
         return hashTable[name]
     }
+    
+    public subscript(dynamicMember keyPath: String) -> String? {
+        set {
+            hashTable[keyPath] = newValue
+        }
+        get {
+            hashTable[keyPath]
+        }
+    }
 }
+
 
 public struct DictDataModel: Identifiable, WriteAndReadAble {
     var hashTable: [String : String] = [:]
