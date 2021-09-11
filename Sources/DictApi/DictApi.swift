@@ -121,6 +121,13 @@ public enum DictType: String {
         case .collins: return [.cn]
         }
     }
+    
+    public var bilingual: Bool {
+        switch self {
+        case .collins:
+            return false
+        }
+    }
 }
 
 public enum Language: String {
