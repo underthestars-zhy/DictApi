@@ -41,6 +41,7 @@ public struct DictDataModel: Identifiable, WriteAndReadAble {
     public let id = UUID()
     public let sound: URL
     public let word: String
+    public let pt: String // 音标
     public let paraphrase: [Paraphrase]
 }
 

@@ -56,6 +56,15 @@ public struct DictApi {
                     .attr("data-src-mp3"),
                 let sound_url = URL(string: soundUrlString) else { return nil }
             
+            guard var pt = try contentElement?
+                    .getElementsByClass("cB-h")
+                    .first()?
+                    .getAllElements()
+                    .get(2)
+                    .text() else { return nil }
+            
+            removeParentheses(&pt)
+            
             guard let allExplain = try contentElement?
                     .getElementsByClass("hom").array() else { return nil }
             
@@ -99,11 +108,18 @@ public struct DictApi {
                 paraphrase.append(Paraphrase(ps: ps, explain: explains, exampleSentence: examples))
             }
             
-            return DictDataModel(sound: sound_url, word: word, paraphrase: paraphrase)
+            return DictDataModel(sound: sound_url, word: word, pt: pt, paraphrase: paraphrase)
         } catch {
             SentrySDK.capture(error: error)
             return nil
         }
+    }
+    
+    private func removeParentheses(_ text: inout String) {
+        while let index = text.firstIndex(where: { $0 == "(" || $0 == ")" }) {
+            text.remove(at: index)
+        }
+        text = text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
