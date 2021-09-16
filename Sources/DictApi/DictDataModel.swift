@@ -45,8 +45,10 @@ public struct DictDataModel: Identifiable, WriteAndReadAble {
     public let paraphrase: [Paraphrase]
 }
 
-public struct Paraphrase: WriteAndReadAble {
+public struct Paraphrase: WriteAndReadAble, Identifiable {
     var hashTable: [String : String] = [:]
+    
+    public let id = UUID()
     
     public let ps: String // 词性
     public let explain: [String] // 释义
