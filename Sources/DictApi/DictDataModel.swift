@@ -39,7 +39,7 @@ public struct DictDataModel: Identifiable, WriteAndReadAble {
     var hashTable: [String : String] = [:]
     
     public let id = UUID()
-    public let sound: URL
+    public let sound: URL?
     public let word: String
     public let pt: String // 音标
     public let paraphrase: [Paraphrase]

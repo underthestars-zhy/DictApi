@@ -28,7 +28,7 @@ public struct DictApi {
         }
         
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _): (Data, URLResponse) = try await URLSession.shared.data(from: url)
             
             guard let html = String(data: data, encoding: .utf8) else { return nil }
 
@@ -47,14 +47,26 @@ public struct DictApi {
                 .getElementsByClass("cB cB-t")
                 .first()
             
-            guard let soundUrlString = try contentElement?
+            guard let _word = try contentElement?
+                    .getElementsByClass("cB-h")
+                    .first()?
+                    .select("h2")
+                    .first()?
+                    .text() else { return nil }
+            
+            let sound_url: URL?
+            
+            if let soundUrlString = try contentElement?
                     .getElementsByClass("cB-h")
                     .first()?
                     .getAllElements()
                     .get(2)
                     .select("a")
-                    .attr("data-src-mp3"),
-                let sound_url = URL(string: soundUrlString) else { return nil }
+                .attr("data-src-mp3") {
+                sound_url = URL(string: soundUrlString)
+            } else {
+                sound_url = nil
+            }
             
             guard var pt = try contentElement?
                     .getElementsByClass("cB-h")
@@ -108,7 +120,7 @@ public struct DictApi {
                 paraphrase.append(Paraphrase(ps: ps, explain: explains, exampleSentence: examples))
             }
             
-            return DictDataModel(sound: sound_url, word: word, pt: pt, paraphrase: paraphrase)
+            return DictDataModel(sound: sound_url, word: _word, pt: pt, paraphrase: paraphrase)
         } catch {
             SentrySDK.capture(error: error)
             return nil
