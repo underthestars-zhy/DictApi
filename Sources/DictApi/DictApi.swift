@@ -23,9 +23,13 @@ public struct DictApi {
     }
     
     private func getCollinsDataFromEnToCn(_ word: String) async -> DictDataModel? {
+        let word = word.replacingOccurrences(of: " ", with: "-")
+        
         guard let url = URL(string: "https://www.collinsdictionary.com/dictionary/english-chinese/\(word.lowercased())") else {
             return nil
         }
+        
+        let sound_url: URL?
         
         do {
             let (data, _): (Data, URLResponse) = try await URLSession.shared.data(from: url)
@@ -53,8 +57,6 @@ public struct DictApi {
                     .select("h2")
                     .first()?
                     .text() else { return nil }
-            
-            let sound_url: URL?
             
             if let soundUrlString = try contentElement?
                     .getElementsByClass("cB-h")
