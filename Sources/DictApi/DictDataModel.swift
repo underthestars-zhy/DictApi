@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ObjectMapper
 
 @dynamicMemberLookup
 protocol WriteAndReadAble {
@@ -35,22 +36,58 @@ extension WriteAndReadAble {
 }
 
 
-public struct DictDataModel: Identifiable, WriteAndReadAble {
+public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
+    public init(sound: URL?, word: String, pt: String, paraphrase: [Paraphrase]) {
+        self.sound = sound
+        self.word = word
+        self.pt = pt
+        self.paraphrase = paraphrase
+    }
+    
+    public init?(map: Map) {
+
+    }
+    
+    public mutating func mapping(map: Map) {
+        sound <- map["sound"]
+        word <- map["word"]
+        pt <- map["pt"]
+        paraphrase <- map["paraphrase"]
+        hashTable <- map["hashTable"]
+    }
+    
     var hashTable: [String : String] = [:]
     
     public let id = UUID()
-    public let sound: URL?
-    public let word: String
-    public let pt: String // 音标
-    public let paraphrase: [Paraphrase]
+    public var sound: URL?
+    public var word: String!
+    public var pt: String! // 音标
+    public var paraphrase: [Paraphrase]!
 }
 
-public struct Paraphrase: WriteAndReadAble, Identifiable {
+public struct Paraphrase: WriteAndReadAble, Identifiable, Mappable {
+    public init(ps: String, explain: [String], exampleSentence: [[String]]) {
+        self.ps = ps
+        self.explain = explain
+        self.exampleSentence = exampleSentence
+    }
+    
+    public init?(map: Map) {
+
+    }
+    
+    public mutating func mapping(map: Map) {
+        ps <- map["ps"]
+        explain <- map["explain"]
+        exampleSentence <- map["exampleSentence"]
+    }
+    
+    
     var hashTable: [String : String] = [:]
     
     public let id = UUID()
     
-    public let ps: String // 词性
-    public let explain: [String] // 释义
-    public let exampleSentence: [[String]] // 例句
+    public var ps: String! // 词性
+    public var explain: [String]! // 释义
+    public var exampleSentence: [[String]]! // 例句
 }

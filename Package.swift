@@ -16,6 +16,7 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(name: "Sentry", url: "https://github.com/getsentry/sentry-cocoa", from: "7.2.3"),
         .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "1.7.4"),
+        .package(url: "https://github.com/tristanhimmelman/ObjectMapper.git", .upToNextMajor(from: "4.1.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -25,6 +26,7 @@ let package = Package(
             dependencies: [
                 .product(name: "Sentry", package: "Sentry"),
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
+                .product(name: "ObjectMapper", package: "ObjectMapper"),
             ]),
         .testTarget(
             name: "DictApiTests",
