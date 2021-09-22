@@ -97,19 +97,27 @@ public struct DictApi {
                     var text = ""
                     var example = [String]()
                     if li.hasClass("level_1") {
+                        var childList = [Node]()
+                        
                         for child in li.children().array() {
-                            if !child.hasClass("p phrase") {
-                                text += try child.text()
-                            } else {
+                            if child.hasClass("p phrase") {
                                 example.append(try child.text())
+                                childList.append(child)
                             }
                         }
+                        
+                        for child in childList {
+                            try li.removeChild(child)
+                        }
+                        
+                        text = try li.text()
                     }
                     
                     if !text.isEmpty {
                         explains.append(text)
-                        examples.append(example)
                     }
+                    
+                    examples.append(example)
                 }
                 
                 explainArray.append(explains)

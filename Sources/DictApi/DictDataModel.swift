@@ -38,7 +38,11 @@ extension WriteAndReadAble {
 
 public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
     public init(sound: URL?, word: String, pt: String, paraphrase: [Paraphrase]) {
-        self.sound = sound
+        if let sound = sound {
+            self._sound = "\(sound)"
+        } else {
+            self._sound = nil
+        }
         self.word = word
         self.pt = pt
         self.paraphrase = paraphrase
@@ -49,7 +53,7 @@ public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
     }
     
     public mutating func mapping(map: Map) {
-        sound <- map["sound"]
+        _sound <- map["sound"]
         word <- map["word"]
         pt <- map["pt"]
         paraphrase <- map["paraphrase"]
@@ -59,7 +63,14 @@ public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
     var hashTable: [String : String] = [:]
     
     public let id = UUID()
-    public var sound: URL?
+    private var _sound: String?
+    public var sound: URL? {
+        if let sound = _sound {
+            return URL(string: sound)
+        } else {
+            return nil
+        }
+    }
     public var word: String!
     public var pt: String! // 音标
     public var paraphrase: [Paraphrase]!
