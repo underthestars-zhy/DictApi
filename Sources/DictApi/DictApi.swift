@@ -51,11 +51,19 @@ public struct DictApi {
                 .getElementsByClass("cB cB-t")
                 .first()
             
-            guard let _word = try contentElement?
-                    .getElementsByClass("cB-h")
-                    .first()?
-                    .select("h2")
-                    .first()?
+            let _word_node = try contentElement?
+                .getElementsByClass("cB-h")
+                .first()?
+                .select("h2")
+                .first()
+            
+            for child in _word_node?.children().array() ?? [] {
+                if child.hasClass("homnum") {
+                    try _word_node?.removeChild(child)
+                }
+            }
+            
+            guard let _word = try _word_node?
                     .text() else { return nil }
             
             if let soundUrlString = try contentElement?
