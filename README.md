@@ -20,7 +20,7 @@ print(data.word)
 
 ### DictDataModel
 
-Flow: Identifiable
+Flow: Identifiable, WriteAndReadAble, Mappable
 
 1. sound: Extra attributes
 2. pt: Extra attributes
@@ -28,6 +28,8 @@ Flow: Identifiable
 4. paraphrase: Paraphrase array
 
 ### Paraphrase
+
+Flow: Identifiable, WriteAndReadAble, Mappable
 
 1. ps: Part of speech
 2. explain: Paraphrase (array)

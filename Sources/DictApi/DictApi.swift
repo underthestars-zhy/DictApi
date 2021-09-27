@@ -81,8 +81,8 @@ public struct DictApi {
             guard var pt = try contentElement?
                     .getElementsByClass("cB-h")
                     .first()?
-                    .getAllElements()
-                    .get(2)
+                    .getElementsByClass("pron")
+                    .first()?
                     .text() else { return nil }
             
             removeParentheses(&pt)
@@ -179,4 +179,13 @@ public enum DictType: String {
 public enum Language: String {
     case cn = "Chinese"
     case en = "English"
+    
+    public var keyboardLanguage: String {
+        switch self {
+        case .cn:
+            return "cn"
+        case .en:
+            return "en"
+        }
+    }
 }
