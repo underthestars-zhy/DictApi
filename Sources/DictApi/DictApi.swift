@@ -78,12 +78,14 @@ public struct DictApi {
                 sound_url = nil
             }
             
-            guard var pt = try contentElement?
-                    .getElementsByClass("cB-h")
-                    .first()?
-                    .getElementsByClass("pron")
-                    .first()?
-                    .text() else { return nil }
+            var pt: String = ""
+            
+            if let res = try contentElement?
+                   .getElementsByClass("cB-h")
+                   .first()?
+                   .getElementsByClass("pron")
+                   .first()?
+                   .text() { pt = res }
             
             removeParentheses(&pt)
             
