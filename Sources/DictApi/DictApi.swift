@@ -67,11 +67,12 @@ public struct DictApi {
                     .text() else { return nil }
             
             if let soundUrlString = try contentElement?
-                    .getElementsByClass("cB-h")
-                    .first()?
-                    .getAllElements()
-                    .get(2)
-                    .select("a")
+                .getElementsByClass("cB-h")
+                .first()?
+                .getElementsByClass("pron")
+                .first()?
+                .select("a")
+                .first()?
                 .attr("data-src-mp3") {
                 sound_url = URL(string: soundUrlString)
             } else {
