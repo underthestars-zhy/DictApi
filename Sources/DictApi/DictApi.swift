@@ -156,7 +156,7 @@ public struct DictApi {
     }
 }
 
-public enum DictType: String {
+public enum DictType: String, CaseIterable {
     case collins
     
     public func fromLanguage() -> [Language] {
