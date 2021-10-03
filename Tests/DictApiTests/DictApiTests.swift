@@ -3,11 +3,13 @@ import XCTest
 
 @available(macOS 12.0.0, *)
 final class DictApiTests: XCTestCase {
-    func testGetHtmlFromCollins() async throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
+    func testGetHtmlFromCollinsFromEnToCn() async throws {
         let res = await DictApi.shared.getData(with: .collins, for: "test", from: .en, to: .cn)
+        print(res ?? "")
+    }
+    
+    func testGetHtmlFromYoudaoFromEnToCn() async throws {
+        let res = await DictApi.shared.getData(with: .youdao, for: "swift", from: .en, to: .cn)
         print(res ?? "")
     }
 }

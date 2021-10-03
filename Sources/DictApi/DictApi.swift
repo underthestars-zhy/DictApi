@@ -41,6 +41,35 @@ public struct DictApi {
             return nil
         }
         
+        do {
+            let (data, _): (Data, URLResponse) = try await URLSession.shared.data(from: url)
+            
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+
+            let doc: Document = try SwiftSoup.parse(html)
+            
+            let contentElement = try doc.body()?
+                .getElementById("doc")?
+                .getElementById("scontainer")?
+                .getElementById("container")?
+                .getElementById("results-contents")?
+                .getElementById("phrsListTab")
+            
+            guard let word = try contentElement?
+                    .getElementsByClass("wordbook-js")
+                    .first()?
+                    .getElementsByClass("keyword")
+                    .first()?
+                    .text() else { return nil }
+            
+            
+            
+            return nil
+            
+        } catch {
+            SentrySDK.capture(error: error)
+        }
+        
         return nil
     }
     
