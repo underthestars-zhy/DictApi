@@ -12,6 +12,7 @@ public struct DictApi {
     public func getData(with type: DictType, for word: String, from: Language, to: Language) async -> DictDataModel? {
         switch type {
         case .collins: return await getCollinsData(for: word, from: from, to: to)
+        case .youdao: return await getYouDaoData(for: word, from: from, to: to)
         }
     }
     
@@ -22,6 +23,25 @@ public struct DictApi {
         case (.en, .cn): return await getCollinsDataFromEnToCn(word)
         default: return nil
         }
+    }
+    
+    private func getYouDaoData(for word: String, from: Language, to: Language) async -> DictDataModel? {
+        guard !word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        
+        switch (from, to) {
+        case (.en, .cn): return await getYouDaoDataFromEnToCn(word)
+        default: return nil
+        }
+    }
+    
+    private func getYouDaoDataFromEnToCn(_ word: String) async -> DictDataModel? {
+        let word = word.replacingOccurrences(of: " ", with: "%20")
+        
+        guard let url = URL(string: "http://dict.youdao.com/w/\(word)/#keyfrom=dict2.top") else {
+            return nil
+        }
+        
+        return nil
     }
     
     private func getCollinsDataFromEnToCn(_ word: String) async -> DictDataModel? {
@@ -159,17 +179,26 @@ public struct DictApi {
 }
 
 public enum DictType: String, CaseIterable {
-    case collins
+    case collins = "Collins"
+    case youdao = "YouDao"
     
     public func fromLanguage() -> [Language] {
         switch self {
         case .collins: return [.en]
+        case .youdao: return[.en]
         }
     }
     
     public func toLanguage(from: Language) -> [Language] {
         switch self {
         case .collins:
+            switch from {
+            case .cn:
+                return []
+            case .en:
+                return [.cn]
+            }
+        case .youdao:
             switch from {
             case .cn:
                 return []
@@ -183,6 +212,8 @@ public enum DictType: String, CaseIterable {
         switch self {
         case .collins:
             return false
+        case .youdao:
+            return true
         }
     }
 }
