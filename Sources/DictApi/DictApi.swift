@@ -16,6 +16,8 @@ public struct DictApi {
     }
     
     private func getCollinsData(for word: String, from: Language, to: Language) async -> DictDataModel? {
+        guard !word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        
         switch (from, to) {
         case (.en, .cn): return await getCollinsDataFromEnToCn(word)
         default: return nil
@@ -165,9 +167,15 @@ public enum DictType: String, CaseIterable {
         }
     }
     
-    public func toLanguage() -> [Language] {
+    public func toLanguage(from: Language) -> [Language] {
         switch self {
-        case .collins: return [.cn]
+        case .collins:
+            switch from {
+            case .cn:
+                return []
+            case .en:
+                return [.cn]
+            }
         }
     }
     
