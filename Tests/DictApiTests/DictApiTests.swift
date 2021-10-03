@@ -4,7 +4,7 @@ import XCTest
 @available(macOS 12.0.0, *)
 final class DictApiTests: XCTestCase {
     func testGetHtmlFromCollinsFromEnToCn() async throws {
-        let res = await DictApi.shared.getData(with: .collins, for: "test", from: .en, to: .cn)
+        let res = await DictApi.shared.getData(with: .collins, for: "make up", from: .en, to: .cn)
         print(res ?? "")
     }
     

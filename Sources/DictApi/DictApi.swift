@@ -55,16 +55,67 @@ public struct DictApi {
                 .getElementById("results-contents")?
                 .getElementById("phrsListTab")
             
-            guard let word = try contentElement?
+            guard let _word = try contentElement?
                     .getElementsByClass("wordbook-js")
                     .first()?
                     .getElementsByClass("keyword")
                     .first()?
                     .text() else { return nil }
             
+            let enSound = "http://dict.youdao.com/dictvoice?type=1&audio=\(word)"
+            let usSound = "http://dict.youdao.com/dictvoice?type=2&audio=\(word)"
             
+            guard let enPt = try contentElement?
+                    .getElementsByClass("wordbook-js")
+                    .first()?
+                    .getElementsByClass("pronounce")
+                    .first()?
+                    .getElementsByClass("phonetic")
+                    .first()?
+                    .text() else { return nil }
             
-            return nil
+            guard let usPt = try contentElement?
+                    .getElementsByClass("wordbook-js")
+                    .first()?
+                    .getElementsByClass("pronounce")
+                    .last()?
+                    .getElementsByClass("phonetic")
+                    .first()?
+                    .text() else { return nil }
+            
+            let pt = "UK: \(enPt)\nUS: \(usPt)"
+            
+            guard let explainConten = try contentElement?
+                .getElementsByClass("trans-container")
+                .first()?
+                .getElementsByTag("ul")
+                .first() else { return nil }
+            
+            var explain = ""
+            
+            for li in explainConten.children().array() {
+                if li.tagName() == "li" {
+                    explain += try li.text()
+                    explain += "\n"
+                }
+            }
+            
+            var addition = ""
+            
+            try contentElement?
+                .getElementsByClass("trans-container")
+                .first()?.getElementsByClass("additional").forEach({ node in
+                    addition += try node.text()
+                    addition += "\n"
+                })
+            
+            var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
+            model.enSound = enSound
+            model.usSound = usSound
+            model.explain = explain
+            model.addtion = addition
+            
+            return model
             
         } catch {
             SentrySDK.capture(error: error)
