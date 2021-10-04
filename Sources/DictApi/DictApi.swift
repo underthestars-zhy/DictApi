@@ -85,7 +85,7 @@ public struct DictApi {
                     .first()?
                     .text() else { return nil }
             
-            let pt = "UK: \(enPt)\nUS: \(usPt)"
+            let pt = "UK: \(enPt) US: \(usPt)"
             
             guard let explainConten = try contentElement?
                     .getElementById("phrsListTab")?
@@ -94,7 +94,7 @@ public struct DictApi {
                     .getElementsByTag("ul")
                     .first() else { return nil }
             
-            var explain = [String]()
+            var explain: [String] = [String]()
             
             for li in explainConten.children().array() {
                 if li.tagName() == "li" {
@@ -175,7 +175,7 @@ public struct DictApi {
                     try $0.text()
                 }
             
-            let example: [(String, String, String, String)]  = try contentElement?
+            let example: [[String]]  = try contentElement?
                 .getElementById("examples")?
                 .getElementById("examplesToggle")?
                 .getElementById("bilingual")?
@@ -183,12 +183,12 @@ public struct DictApi {
                 .first()?
                 .getElementsByTag("li")
                 .map { node in
-                    (
+                    [
                         try node.getElementsByTag("p").get(0).text(),
                         try node.getElementsByTag("p").get(1).text(),
                         "http://dict.youdao.com/dictvoice?type=1&audio=\(try node.getElementsByTag("p").get(0).getElementsByTag("a").first()?.attr("data-rel") ?? "")",
                         "http://dict.youdao.com/dictvoice?type=2&audio=\(try node.getElementsByTag("p").get(0).getElementsByTag("a").first()?.attr("data-rel") ?? "")"
-                    )
+                    ]
                 } ?? []
             
             
@@ -374,15 +374,6 @@ public enum DictType: String, CaseIterable {
             case .en:
                 return [.cn]
             }
-        }
-    }
-    
-    public var bilingual: Bool {
-        switch self {
-        case .collins:
-            return false
-        case .youdao:
-            return true
         }
     }
 }
