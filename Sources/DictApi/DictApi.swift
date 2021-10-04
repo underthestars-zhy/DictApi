@@ -175,6 +175,23 @@ public struct DictApi {
                     try $0.text()
                 }
             
+            let example: [(String, String, String, String)]  = try contentElement?
+                .getElementById("examples")?
+                .getElementById("examplesToggle")?
+                .getElementById("bilingual")?
+                .getElementsByTag("ul")
+                .first()?
+                .getElementsByTag("li")
+                .map { node in
+                    (
+                        try node.getElementsByTag("p").get(0).text(),
+                        try node.getElementsByTag("p").get(1).text(),
+                        "http://dict.youdao.com/dictvoice?type=1&audio=\(try node.getElementsByTag("p").get(0).getElementsByTag("a").first()?.attr("data-rel") ?? "")",
+                        "http://dict.youdao.com/dictvoice?type=2&audio=\(try node.getElementsByTag("p").get(0).getElementsByTag("a").first()?.attr("data-rel") ?? "")"
+                    )
+                } ?? []
+            
+            
             var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
             model.enSound = enSound
             model.usSound = usSound
@@ -185,6 +202,7 @@ public struct DictApi {
             model.synonyms = synonyms
             model.sameRootWord = sameRootWord
             model.discrimination = discrimination
+            model.example = example
             
             return model
             
