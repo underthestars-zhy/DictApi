@@ -126,12 +126,42 @@ public struct DictApi {
                     try $0.text()
                 }
             
+            let wordGroup = try contentElement?
+                .getElementById("eTransform")?
+                .getElementById("transformToggle")?
+                .getElementById("wordGroup")?
+                .getElementsByTag("p")
+                .array().map {
+                    try $0.text()
+                }
+            
+            var synonyms = [String : [String]]()
+            var last = ""
+            
+            for node in try contentElement?
+                    .getElementById("eTransform")?
+                    .getElementById("transformToggle")?
+                    .getElementById("synonyms")?
+                    .getElementsByTag("ul")
+                    .first()?.children().array() ?? [] {
+                if node.tagName() == "li" {
+                    synonyms[try node.text()] = []
+                    last = try node.text()
+                } else if try node.tagName() == "p" &&  node.className() == "wordGroup" {
+                    synonyms[last] = try node.children().map {
+                        try $0.getElementsByTag("a").first()?.text() ?? ""
+                    }
+                }
+            }
+            
             var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
             model.enSound = enSound
             model.usSound = usSound
             model.explain = explain
             model.addtion = addition
             model.phrase = phrase
+            model.wordGroup = wordGroup
+            model.synonyms = synonyms
             
             return model
             
