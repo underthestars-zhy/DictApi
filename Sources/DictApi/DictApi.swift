@@ -52,10 +52,10 @@ public struct DictApi {
                 .getElementById("doc")?
                 .getElementById("scontainer")?
                 .getElementById("container")?
-                .getElementById("results-contents")?
-                .getElementById("phrsListTab")
+                .getElementById("results-contents")
             
             guard let _word = try contentElement?
+                    .getElementById("phrsListTab")?
                     .getElementsByClass("wordbook-js")
                     .first()?
                     .getElementsByClass("keyword")
@@ -66,6 +66,7 @@ public struct DictApi {
             let usSound = "http://dict.youdao.com/dictvoice?type=2&audio=\(word)"
             
             guard let enPt = try contentElement?
+                    .getElementById("phrsListTab")?
                     .getElementsByClass("wordbook-js")
                     .first()?
                     .getElementsByClass("pronounce")
@@ -75,6 +76,7 @@ public struct DictApi {
                     .text() else { return nil }
             
             guard let usPt = try contentElement?
+                    .getElementById("phrsListTab")?
                     .getElementsByClass("wordbook-js")
                     .first()?
                     .getElementsByClass("pronounce")
@@ -86,34 +88,50 @@ public struct DictApi {
             let pt = "UK: \(enPt)\nUS: \(usPt)"
             
             guard let explainConten = try contentElement?
-                .getElementsByClass("trans-container")
-                .first()?
-                .getElementsByTag("ul")
-                .first() else { return nil }
+                    .getElementById("phrsListTab")?
+                    .getElementsByClass("trans-container")
+                    .first()?
+                    .getElementsByTag("ul")
+                    .first() else { return nil }
             
-            var explain = ""
+            var explain = [String]()
             
             for li in explainConten.children().array() {
                 if li.tagName() == "li" {
-                    explain += try li.text()
-                    explain += "\n"
+                    explain.append(try li.text())
                 }
             }
             
-            var addition = ""
-            
-            try contentElement?
+            let addition = try contentElement?
+                .getElementById("phrsListTab")?
                 .getElementsByClass("trans-container")
-                .first()?.getElementsByClass("additional").forEach({ node in
-                    addition += try node.text()
-                    addition += "\n"
+                .first()?.getElementsByClass("additional").map({ node in
+                    try node.text()
                 })
+            
+            let phrase = try contentElement?
+                .getElementById("webTrans")?
+                .getElementById("tWebTrans")?
+                .getElementById("webPhrase")?
+                .children()
+                .array()
+                .filter { node in
+                    if node.tagName() == "p" && node.hasClass("wordGroup") {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+                .map {
+                    try $0.text()
+                }
             
             var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
             model.enSound = enSound
             model.usSound = usSound
             model.explain = explain
             model.addtion = addition
+            model.phrase = phrase
             
             return model
             
