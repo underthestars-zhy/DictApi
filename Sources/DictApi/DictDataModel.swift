@@ -10,22 +10,22 @@ import ObjectMapper
 
 @dynamicMemberLookup
 protocol WriteAndReadAble {
-    var hashTable: [String : String] { get set }
+    var hashTable: [String : Any] { get set }
     
-    mutating func set(_ name: String, with value: String)
-    func `get`(_ name: String) -> String?
+    mutating func set(_ name: String, with value: Any)
+    func `get`(_ name: String) -> Any?
 }
 
 extension WriteAndReadAble {
-    public mutating func set(_ name: String, with value: String) {
+    public mutating func set(_ name: String, with value: Any) {
         hashTable[name] = value
     }
     
-    public func `get`(_ name: String) -> String? {
+    public func `get`(_ name: String) -> Any? {
         return hashTable[name]
     }
     
-    public subscript(dynamicMember keyPath: String) -> String? {
+    public subscript(dynamicMember keyPath: String) -> Any? {
         set {
             hashTable[keyPath] = newValue
         }
@@ -60,7 +60,7 @@ public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
         hashTable <- map["hashTable"]
     }
     
-    var hashTable: [String : String] = [:]
+    var hashTable: [String : Any] = [:]
     
     public let id = UUID()
     private var _sound: String?
@@ -94,7 +94,7 @@ public struct Paraphrase: WriteAndReadAble, Identifiable, Mappable {
     }
     
     
-    var hashTable: [String : String] = [:]
+    var hashTable: [String : Any] = [:]
     
     public let id = UUID()
     
