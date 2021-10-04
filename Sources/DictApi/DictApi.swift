@@ -154,6 +154,27 @@ public struct DictApi {
                 }
             }
             
+            let sameRootWord = try contentElement?
+                .getElementById("eTransform")?
+                .getElementById("transformToggle")?
+                .getElementById("relWordTab")?
+                .children().map {
+                    try $0.text()
+                }
+            
+            let discrimination = try contentElement?
+                .getElementById("eTransform")?
+                .getElementById("transformToggle")?
+                .getElementById("discriminate")?
+                .getElementsByClass("wt-container")
+                .first()?
+                .getElementsByClass("collapse-content")
+                .first()?
+                .children()
+                .map {
+                    try $0.text()
+                }
+            
             var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
             model.enSound = enSound
             model.usSound = usSound
@@ -162,6 +183,8 @@ public struct DictApi {
             model.phrase = phrase
             model.wordGroup = wordGroup
             model.synonyms = synonyms
+            model.sameRootWord = sameRootWord
+            model.discrimination = discrimination
             
             return model
             
