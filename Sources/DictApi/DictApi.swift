@@ -170,7 +170,7 @@ public struct DictApi {
                 .first()?
                 .getElementsByClass("collapse-content")
                 .first()?
-                .children()
+                .getElementsByClass("wordGroup")
                 .map {
                     try $0.text()
                 }
