@@ -65,27 +65,35 @@ public struct DictApi {
             let enSound = "http://dict.youdao.com/dictvoice?type=1&audio=\(word)"
             let usSound = "http://dict.youdao.com/dictvoice?type=2&audio=\(word)"
             
-            guard let enPt = try contentElement?
-                    .getElementById("phrsListTab")?
-                    .getElementsByClass("wordbook-js")
-                    .first()?
-                    .getElementsByClass("pronounce")
-                    .first()?
-                    .getElementsByClass("phonetic")
-                    .first()?
-                    .text() else { return nil }
+            let enPt:String
+            let usPt:String
+            let pt: String
             
-            guard let usPt = try contentElement?
-                    .getElementById("phrsListTab")?
-                    .getElementsByClass("wordbook-js")
-                    .first()?
-                    .getElementsByClass("pronounce")
-                    .last()?
-                    .getElementsByClass("phonetic")
-                    .first()?
-                    .text() else { return nil }
+            if let res = try contentElement?
+                .getElementById("phrsListTab")?
+                .getElementsByClass("wordbook-js")
+                .first()?
+                .getElementsByClass("pronounce")
+                .first()?
+                .getElementsByClass("phonetic")
+                .first()?
+                .text() { enPt = res } else { enPt = "" }
             
-            let pt = "UK: \(enPt) US: \(usPt)"
+            if let res = try contentElement?
+                .getElementById("phrsListTab")?
+                .getElementsByClass("wordbook-js")
+                .first()?
+                .getElementsByClass("pronounce")
+                .last()?
+                .getElementsByClass("phonetic")
+                .first()?
+                .text() { usPt = res } else { usPt = "" }
+            
+            if enPt.isEmpty && usPt.isEmpty {
+                pt = ""
+            } else {
+                pt = "UK: \(enPt) US: \(usPt)"
+            }
             
             guard let explainConten = try contentElement?
                     .getElementById("phrsListTab")?

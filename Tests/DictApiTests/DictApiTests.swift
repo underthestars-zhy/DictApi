@@ -9,7 +9,7 @@ final class DictApiTests: XCTestCase {
     }
     
     func testGetHtmlFromYoudaoFromEnToCn() async throws {
-        let res = await DictApi.shared.getData(with: .youdao, for: "swift", from: .en, to: .cn)
-        print(res?.toJSONString() ?? "")
+        let res = await DictApi.shared.getData(with: .youdao, for: "sugar mummy", from: .en, to: .cn)
+        print(res ?? "")
     }
 }
