@@ -359,6 +359,19 @@ public enum DictType: String, CaseIterable {
     case collins = "Collins"
     case youdao = "YouDao"
     
+    public func reverse(_ l: Language) -> Language? {
+        switch self {
+        case .collins: return nil
+        case .youdao:
+            switch l {
+            case .cn:
+                return nil
+            case .en:
+                return .cn
+            }
+        }
+    }
+    
     public func fromLanguage() -> [Language] {
         switch self {
         case .collins: return [.en]
@@ -397,5 +410,24 @@ public enum Language: String {
         case .en:
             return "en"
         }
+    }
+    
+    public func identify(_ word: String) -> Language {
+        if isIncludeChineseIn(string: word) {
+            return .cn
+        }
+        return .en
+    }
+    
+    private func isIncludeChineseIn(string: String) -> Bool {
+        
+        for (_, value) in string.enumerated() {
+
+            if ("\u{4E00}" <= value  && value <= "\u{9FA5}") {
+                return true
+            }
+        }
+        
+        return false
     }
 }
