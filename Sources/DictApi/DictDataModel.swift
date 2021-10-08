@@ -58,6 +58,7 @@ public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
         pt <- map["pt"]
         paraphrase <- map["paraphrase"]
         hashTable <- map["hashTable"]
+        reverse <- map["reverse"]
     }
     
     public var hashTable: [String : Any] = [:]
@@ -74,6 +75,7 @@ public struct DictDataModel: Identifiable, WriteAndReadAble, Mappable {
     public var word: String!
     public var pt: String! // 音标
     public var paraphrase: [Paraphrase]!
+    public var reverse:Bool! = false
 }
 
 public struct Paraphrase: WriteAndReadAble, Identifiable, Mappable {

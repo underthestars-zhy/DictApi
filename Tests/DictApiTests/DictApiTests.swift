@@ -12,4 +12,14 @@ final class DictApiTests: XCTestCase {
         let res = await DictApi.shared.getData(with: .youdao, for: "sugar mummy", from: .en, to: .cn)
         print(res ?? "")
     }
+    
+    func testGetHtmlFromYoudaoFromEnToCnReverse() async throws {
+        let res = await DictApi.shared.getData(with: .youdao, for: "你好", from: .en, to: .cn)
+        print(res ?? "")
+    }
+    
+    func testCn() {
+        XCTAssertEqual(Language.identify("你好"), .cn)
+        XCTAssertEqual(Language.identify("hello"), .en)
+    }
 }

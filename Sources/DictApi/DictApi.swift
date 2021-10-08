@@ -28,10 +28,100 @@ public struct DictApi {
     private func getYouDaoData(for word: String, from: Language, to: Language) async -> DictDataModel? {
         guard !word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
         
-        switch (from, to) {
-        case (.en, .cn): return await getYouDaoDataFromEnToCn(word)
-        default: return nil
+        if from == Language.identify(word) {
+            switch (from, to) {
+            case (.en, .cn): return await getYouDaoDataFromEnToCn(word)
+            default: return nil
+            }
+        } else {
+            switch (from, to) {
+            case (.en, .cn): return await getYouDaoDataFromEnToCnReverse(word)
+            default: return nil
+            }
         }
+    }
+    
+    private func getYouDaoDataFromEnToCnReverse(_ word: String) async -> DictDataModel? {
+        guard let word = word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        
+        guard let url = URL(string: "http://dict.youdao.com/w/\(word)/#keyfrom=dict2.top") else {
+            return nil
+        }
+        
+        do {
+            let (data, _): (Data, URLResponse) = try await URLSession.shared.data(from: url)
+            
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+
+            let doc: Document = try SwiftSoup.parse(html)
+            
+            let contentElement = try doc.body()?
+                .getElementById("doc")?
+                .getElementById("scontainer")?
+                .getElementById("container")?
+                .getElementById("results-contents")
+            
+            guard let _word = try contentElement?
+                    .getElementById("phrsListTab")?
+                    .getElementsByClass("wordbook-js")
+                    .first()?
+                    .getElementsByClass("keyword")
+                    .first()?
+                    .text() else { return nil }
+            
+            guard let pt = try contentElement?
+                    .getElementById("phrsListTab")?
+                    .getElementsByClass("wordbook-js")
+                    .first()?
+                    .getElementsByClass("phonetic")
+                    .first()?
+                    .text() else { return nil }
+            
+            let englishWords = try contentElement?
+                .getElementById("phrsListTab")?
+                .getElementsByClass("trans-container")
+                .first()?
+                .getElementsByTag("ul")
+                .first()?
+                .getElementsByClass("wordGroup")
+                .first()?
+                .getElementsByClass("contentTitle")
+                .map {
+                    try $0
+                        .getElementsByTag("a")
+                        .first()?
+                        .text() ?? ""
+                }
+                .filter {
+                    $0 != ""
+                }
+            
+            let examples: [[String]] = try contentElement?
+                .getElementById("examples")?
+                .getElementById("bilingual")?
+                .getElementsByTag("ul")
+                .first()?
+                .getElementsByTag("li")
+                .map {
+                    [
+                        try $0.getElementsByTag("p").get(0).text(),
+                        try $0.getElementsByTag("p").get(1).text(),
+                        "http://dict.youdao.com/dictvoice?type=1&audio=\(try $0.getElementsByTag("p").get(1).getElementsByTag("a").first()?.attr("data-rel") ?? "")",
+                        "http://dict.youdao.com/dictvoice?type=2&audio=\(try $0.getElementsByTag("p").get(1).getElementsByTag("a").first()?.attr("data-rel") ?? "")"
+                    ]
+                } ?? []
+            
+            var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
+            model.reverse = true
+            model.englishWords = englishWords
+            model.examples = examples
+            
+            return model
+        } catch {
+            SentrySDK.capture(error: error)
+        }
+        
+        return nil
     }
     
     private func getYouDaoDataFromEnToCn(_ word: String) async -> DictDataModel? {
@@ -201,6 +291,7 @@ public struct DictApi {
             
             
             var model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
+            model.reverse = false
             model.enSound = enSound
             model.usSound = usSound
             model.explain = explain
@@ -412,14 +503,14 @@ public enum Language: String {
         }
     }
     
-    public func identify(_ word: String) -> Language {
+    public static func identify(_ word: String) -> Language {
         if isIncludeChineseIn(string: word) {
             return .cn
         }
         return .en
     }
     
-    private func isIncludeChineseIn(string: String) -> Bool {
+    private static func isIncludeChineseIn(string: String) -> Bool {
         
         for (_, value) in string.enumerated() {
 
