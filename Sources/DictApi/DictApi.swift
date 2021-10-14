@@ -69,13 +69,17 @@ public struct DictApi {
                     .first()?
                     .text() else { return nil }
             
-            guard let pt = try contentElement?
-                    .getElementById("phrsListTab")?
-                    .getElementsByClass("wordbook-js")
-                    .first()?
-                    .getElementsByClass("phonetic")
-                    .first()?
-                    .text() else { return nil }
+            let pt: String
+            
+            if let res = try contentElement?
+                .getElementById("phrsListTab")?
+                .getElementsByClass("wordbook-js")
+                .first()?
+                .getElementsByClass("phonetic")
+                .first()?
+                .text() {
+                pt = res
+            } else { pt = "" }
             
             let englishWords = try contentElement?
                 .getElementById("phrsListTab")?

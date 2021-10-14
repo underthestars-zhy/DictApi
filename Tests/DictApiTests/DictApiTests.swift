@@ -14,7 +14,7 @@ final class DictApiTests: XCTestCase {
     }
     
     func testGetHtmlFromYoudaoFromEnToCnReverse() async throws {
-        let res = await DictApi.shared.getData(with: .youdao, for: "你好", from: .en, to: .cn)
+        let res = await DictApi.shared.getData(with: .youdao, for: "复杂的", from: .en, to: .cn)
         print(res ?? "")
     }
     
