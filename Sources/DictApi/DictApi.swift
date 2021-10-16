@@ -1,5 +1,6 @@
 import Sentry
 import SwiftSoup
+import SwiftyJSON
 import Foundation
 
 @available(iOS 15.0.0, *)
@@ -7,12 +8,26 @@ import Foundation
 @available(watchOS 8.0.0, *)
 @available(tvOS 15.0.0, *)
 public struct DictApi {
+    // MARK: - API
     public static let shared = DictApi()
     
-    public func getData(with type: DictType, for word: String, from: Language, to: Language) async -> DictDataModel? {
+    public func getData(with type: DictType, for word: String, from: Language, to: Language, api: String? = nil) async -> DictDataModel? {
         switch type {
         case .collins: return await getCollinsData(for: word, from: from, to: to)
         case .youdao: return await getYouDaoData(for: word, from: from, to: to)
+        case .wordsapi: return await getWordsApiData(for: word, from: from, to: to, api: api)
+        }
+    }
+    
+    // MARK: - Distribution
+    private func getWordsApiData(for word: String, from: Language, to: Language, api: String? = nil) async -> DictDataModel? {
+        guard !word.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        guard let api = api else { return nil }
+
+        
+        switch (from, to) {
+        case (.en, .en): return await geWordsApiDataFromEnToEn(word, api: api)
+        default: return nil
         }
     }
     
@@ -39,6 +54,59 @@ public struct DictApi {
             default: return nil
             }
         }
+    }
+    
+    // MARK: - Accomplish
+    private func geWordsApiDataFromEnToEn(_ word: String, api: String) async -> DictDataModel? {
+        guard let word = word.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
+        
+        let headers = [
+            "x-rapidapi-host": "wordsapiv1.p.rapidapi.com",
+            "x-rapidapi-key": api
+        ]
+        
+        guard let url = URL(string: "https://wordsapiv1.p.rapidapi.com/words/\(word)") else {
+            return nil
+        }
+        
+        guard let ptUrl = URL(string: "https://wordsapiv1.p.rapidapi.com/words/\(word)/pronunciation") else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+        
+        var ptRequest = URLRequest(url: ptUrl)
+        ptRequest.httpMethod = "GET"
+        ptRequest.allHTTPHeaderFields = headers
+        
+        do {
+            let (data, _): (Data, URLResponse) = try await URLSession.shared.data(for: request)
+            let (ptData, _): (Data, URLResponse) = try await URLSession.shared.data(for: ptRequest)
+            
+            let json = try JSON(data: data)
+            let ptJson = try JSON(data: ptData)
+            
+            var pt = ""
+            
+            guard let _word = json["word"].string else { return nil }
+            
+            guard let ptDict = ptJson["pronunciation"].dictionary else { return nil }
+            
+            for (key, value): (String, JSON) in ptDict {
+                pt += "\(key):[\(value.string ?? "")] "
+            }
+            pt = pt.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            let model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
+            
+            return model
+        } catch {
+            SentrySDK.capture(error: error)
+        }
+        
+        return nil
     }
     
     private func getYouDaoDataFromEnToCnReverse(_ word: String) async -> DictDataModel? {
@@ -453,24 +521,13 @@ public struct DictApi {
 public enum DictType: String, CaseIterable {
     case collins = "Collins"
     case youdao = "YouDao"
-    
-    public func reverse(_ l: Language) -> Language? {
-        switch self {
-        case .collins: return nil
-        case .youdao:
-            switch l {
-            case .cn:
-                return nil
-            case .en:
-                return .cn
-            }
-        }
-    }
+    case wordsapi = "WordsApi"
     
     public func fromLanguage() -> [Language] {
         switch self {
         case .collins: return [.en]
-        case .youdao: return[.en]
+        case .youdao: return [.en]
+        case .wordsapi: return [.en]
         }
     }
     
@@ -489,6 +546,13 @@ public enum DictType: String, CaseIterable {
                 return []
             case .en:
                 return [.cn]
+            }
+        case .wordsapi:
+            switch from {
+            case .cn:
+                return []
+            case .en:
+                return [.en]
             }
         }
     }

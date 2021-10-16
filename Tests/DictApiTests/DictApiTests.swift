@@ -18,6 +18,11 @@ final class DictApiTests: XCTestCase {
         print(res ?? "")
     }
     
+    func testGetHtmlFromWordsApiFromEnToEn() async throws {
+        let res = await DictApi.shared.getData(with: .wordsapi, for: "example", from: .en, to: .en, api: "")
+        print(res ?? "")
+    }
+    
     func testCn() {
         XCTAssertEqual(Language.identify("你好"), .cn)
         XCTAssertEqual(Language.identify("hello"), .en)
