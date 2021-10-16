@@ -69,37 +69,225 @@ public struct DictApi {
             return nil
         }
         
-        guard let ptUrl = URL(string: "https://wordsapiv1.p.rapidapi.com/words/\(word)/pronunciation") else {
-            return nil
-        }
-        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
-        var ptRequest = URLRequest(url: ptUrl)
-        ptRequest.httpMethod = "GET"
-        ptRequest.allHTTPHeaderFields = headers
-        
         do {
             let (data, _): (Data, URLResponse) = try await URLSession.shared.data(for: request)
-            let (ptData, _): (Data, URLResponse) = try await URLSession.shared.data(for: ptRequest)
             
             let json = try JSON(data: data)
-            let ptJson = try JSON(data: ptData)
             
             var pt = ""
             
             guard let _word = json["word"].string else { return nil }
             
-            guard let ptDict = ptJson["pronunciation"].dictionary else { return nil }
+            guard let ptDict = json["pronunciation"].dictionary else { return nil }
             
             for (key, value): (String, JSON) in ptDict {
                 pt += "\(key):[\(value.string ?? "")] "
             }
             pt = pt.trimmingCharacters(in: .whitespacesAndNewlines)
             
-            let model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: [])
+            guard let results = json["results"].array else { return nil }
+            
+            var paraphrase = [Paraphrase]()
+            
+            for result in results {
+                guard let ps = result["partOfSpeech"].string else { return nil }
+                guard let definition = result["definition"].string else { return nil }
+                
+                var p = Paraphrase(ps: ps, explain: [], exampleSentence: [])
+                p.definition = definition
+                
+                if let res = result["synonyms"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.synonyms = res
+                }
+                
+                if let res = result["antonyms"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.antonyms = res
+                }
+                
+                if let res = result["examples"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.examples = res
+                }
+                
+                if let res = result["typeOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.typeOf = res
+                }
+                
+                if let res = result["hasTypes"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasTypes = res
+                }
+                
+                if let res = result["partOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.partOf = res
+                }
+                
+                if let res = result["hasParts"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasParts = res
+                }
+                
+                if let res = result["instanceOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.instanceOf = res
+                }
+                
+                if let res = result["hasInstances"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasInstances = res
+                }
+                
+                if let res = result["similarTo"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.similarTo = res
+                }
+                
+                if let res = result["also"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.also = res
+                }
+                
+                if let res = result["entails"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.entails = res
+                }
+                
+                if let res = result["memberOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.memberOf = res
+                }
+                
+                if let res = result["hasMembers"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasMembers = res
+                }
+                
+                if let res = result["substanceOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.substanceOf = res
+                }
+                
+                if let res = result["hasSubstances"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasSubstances = res
+                }
+                
+                if let res = result["inCategory"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.inCategory = res
+                }
+                
+                if let res = result["hasCategories"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasCategories = res
+                }
+                
+                if let res = result["usageOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.usageOf = res
+                }
+                
+                if let res = result["hasUsages"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasUsages = res
+                }
+                
+                if let res = result["inRegion"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.inRegion = res
+                }
+                
+                if let res = result["regionOf"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.regionOf = res
+                }
+                
+                if let res = result["pertainsTo"].array?.map({ json in
+                    json.string ?? ""
+                }).filter({
+                    !$0.isEmpty
+                }) {
+                    p.hasInstances = res
+                }
+                
+                paraphrase.append(p)
+            }
+            
+            let model = DictDataModel(sound: nil, word: _word, pt: pt, paraphrase: paraphrase)
             
             return model
         } catch {
