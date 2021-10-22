@@ -94,7 +94,7 @@ public struct DictApi {
             var paraphrase = [Paraphrase]()
             
             for result in results {
-                guard let ps = result["partOfSpeech"].string else { return nil }
+                let ps = result["partOfSpeech"].string ?? "other"
                 guard let definition = result["definition"].string else { return nil }
                 
                 var p = Paraphrase(ps: ps, explain: [], exampleSentence: [])
@@ -281,7 +281,7 @@ public struct DictApi {
                 }).filter({
                     !$0.isEmpty
                 }) {
-                    p.hasInstances = res
+                    p.pertainsTo = res
                 }
                 
                 paraphrase.append(p)

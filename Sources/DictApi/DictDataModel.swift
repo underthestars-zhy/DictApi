@@ -93,6 +93,7 @@ public struct Paraphrase: WriteAndReadAble, Identifiable, Mappable {
         ps <- map["ps"]
         explain <- map["explain"]
         exampleSentence <- map["exampleSentence"]
+        hashTable <- map["hashTable"]
     }
     
     
