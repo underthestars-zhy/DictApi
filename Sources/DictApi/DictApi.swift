@@ -16,6 +16,7 @@ public struct DictApi {
         case .collins: return await getCollinsData(for: word, from: from, to: to)
         case .youdao: return await getYouDaoData(for: word, from: from, to: to)
         case .wordsapi: return await getWordsApiData(for: word, from: from, to: to, api: api)
+        case .local: return nil
         }
     }
     
@@ -710,12 +711,14 @@ public enum DictType: String, CaseIterable {
     case collins = "Collins"
     case youdao = "YouDao"
     case wordsapi = "WordsApi"
+    case local = "Local"
     
     public func fromLanguage() -> [Language] {
         switch self {
         case .collins: return [.en]
         case .youdao: return [.en]
         case .wordsapi: return [.en]
+        case .local: return []
         }
     }
     
@@ -742,6 +745,7 @@ public enum DictType: String, CaseIterable {
             case .en:
                 return [.en]
             }
+        case .local: return []
         }
     }
 }
