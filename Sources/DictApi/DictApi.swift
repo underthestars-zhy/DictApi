@@ -1,4 +1,6 @@
+#if canImport(Sentry)
 import Sentry
+#endif
 import SwiftSoup
 import SwiftyJSON
 import Foundation
@@ -694,7 +696,9 @@ public struct DictApi {
             
             return DictDataModel(sound: sound_url, word: _word, pt: pt, paraphrase: paraphrase)
         } catch {
+            #if canImport(Sentry)
             SentrySDK.capture(error: error)
+            #endif
             return nil
         }
     }
